@@ -18,6 +18,7 @@ api/                 API FastAPI (inférence réelle)
   app/ecgnet.py      Architecture du CNN (identique au rapport)
   app/clinical.py    Nettoyage + variables du modèle clinique
   training/train_clinique.py   Ré-entraîne le modèle clinique (plis 1–8) et le sauvegarde
+  training/train_ecg.py        Entraîne le CNN ECG (PTB-XL) et sauvegarde poids + normalisation
 models/              Poids (non versionnés) : clinique.joblib, ecg_cnn_v2.pt, ecg_norm.npz
 deploy/              Nginx + script d'installation VPS
 docker-compose.yml
@@ -45,6 +46,20 @@ np.savez('ecg_norm.npz', mean=mean, std=std)
 from google.colab import files
 files.download('ecg_cnn_v2.pt'); files.download('ecg_norm.npz')
 ```
+
+### Variante : entraîner le CNN depuis le dépôt
+
+Si tu n'as pas déjà les poids, `api/training/train_ecg.py` fait tout (téléchargement
+des enregistrements 100 Hz, normalisation plis 1–8, entraînement, sélection sur le pli 9,
+évaluation pli 10) et écrit `ecg_cnn_v2.pt` + `ecg_norm.npz`.
+
+```bash
+cd api
+DATA_DIR=/content/ptbxl MODELS_DIR=/content/models python -m training.train_ecg
+```
+
+Sur GPU (Colab) : quelques dizaines de minutes. Sur CPU : plusieurs heures — l'image Docker
+de l'API est en torch CPU, donc entraîne plutôt sur Colab puis copie les deux fichiers.
 
 ## 3. Installer sur le VPS (Ubuntu 22.04 / 24.04)
 
