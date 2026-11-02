@@ -69,6 +69,21 @@ sudo EMAIL=vous@exemple.com bash deploy/setup.sh
 Le script installe Docker, Nginx et Certbot, construit l'API, **ré-entraîne le modèle clinique**
 (télécharge PTB-XL v1.0.1 depuis PhysioNet, ~7 Mo), configure Nginx et le certificat HTTPS.
 
+## 3 bis. VPS où le port 80 est déjà pris (mode 8080)
+
+Aucun Nginx système, aucun Certbot, aucun conflit avec les services existants :
+
+```bash
+cd /opt/systole && git pull
+docker compose up -d --build          # api + web (nginx:alpine)
+sudo ufw allow 8080/tcp               # si UFW est actif
+```
+
+Accès : `http://DOMAINE:8080` (front) et `http://DOMAINE:8080/api/health`.
+Le conteneur `web` sert `web/` et proxifie `/api/` vers `api:8000`.
+Ne pas lancer `deploy/setup.sh` dans ce mode : il configure Nginx sur le port 80.
+HTTPS sur 8080 : à gérer par le reverse proxy déjà présent sur 80/443, pointé vers `127.0.0.1:8080`.
+
 ## 4. Vérifier
 
 ```bash

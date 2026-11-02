@@ -10,3 +10,15 @@ services:
       - ./models:/models
     ports:
       - "127.0.0.1:8000:8000"
+
+  web:
+    image: nginx:alpine
+    container_name: systole-web
+    restart: unless-stopped
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./deploy/nginx/container.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
