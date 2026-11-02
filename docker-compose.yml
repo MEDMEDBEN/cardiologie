@@ -1,0 +1,12 @@
+services:
+  api:
+    build: ./api
+    container_name: systole-api
+    restart: unless-stopped
+    environment:
+      - MODELS_DIR=/models
+      - ROOT_PATH=/api
+    volumes:
+      - ./models:/models
+    ports:
+      - "127.0.0.1:8000:8000"
